@@ -1,0 +1,10 @@
+[submodule "userspace-rcu"]
+	path = userspace-rcu
+	url = https://git.corp.kuaishou.com/cloud/net/pnet/userspace-rcu.git
+[submodule "numactl"]
+	path = numactl
+	url = https://git.corp.kuaishou.com/cloud/net/pnet/numactl.git
+[submodule "lttng-ust"]
+	path = lttng-ust
+	url = https://git.corp.kuaishou.com/cloud/net/pnet/lttng-ust.git
+
