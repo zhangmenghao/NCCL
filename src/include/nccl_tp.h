@@ -25,7 +25,7 @@ TRACEPOINT_EVENT(nccl, ncclIbv_poll_cq, TP_ARGS(uint32_t, qpnum, char*, remoaddr
                             ctf_integer(char*, remoaddr, remoaddr)))   
 
 
-TRACEPOINT_EVENT(nccl, ncclIbv_destroy_send_qp, TP_ARGS(uint32_t, qpnum),
+TRACEPOINT_EVENT(nccl, ncclIbv_destroy_send_qp, TP_ARGS(uint32_t, qpnum),  
                  TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum)))   
 
 

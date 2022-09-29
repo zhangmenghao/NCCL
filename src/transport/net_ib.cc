@@ -116,6 +116,12 @@ static int ncclIbSpeed(int speed) {
   return ibvSpeeds[firstBitSet(speed, sizeof(ibvSpeeds)/sizeof(int)-1)];
 }
 
+char* transRemoaddr(int remoaddr){
+  char result[15];
+  sprintf(result, "%i.%i.%i.%i", remoaddr&255, (remoaddr&65280)>>8, (remoaddr&16711680)>>16, (remoaddr&4278190080)>>24);
+  return result;
+}
+
 ncclResult_t ncclIbInit(ncclDebugLogger_t logFunction) {
   static int shownIbHcaEnv = 0;
   if(wrap_ibv_symbols() != ncclSuccess) { return ncclInternalError; }
@@ -927,9 +933,6 @@ ncclResult_t ncclIbCloseSend(void* sendComm) {
     if (comm->fifoMr != NULL) NCCLCHECK(wrap_ibv_dereg_mr(comm->fifoMr));
     NCCLCHECK(ncclIbDestroyVerbs(&comm->verbs));
     free(comm);
-
-    tracepoint(nccl, ncclIbv_destroy_qp, comm->qps[q]->qp_num);
-
   }
   return ncclSuccess;
 }
@@ -964,11 +967,7 @@ ncclResult_t ncclIbCloseListen(void* listenComm) {
   return ncclSuccess;
 }
 
-char* transRemoaddr(int remoaddr){
-  char result[15];
-  sprintf(result, "%i.%i.%i.%i", remoaddr&255, (remoaddr&65280)>>8, (remoaddr&16711680)>>16, (remoaddr&4278190080)>>24);
-  return result;
-}
+
 
 ncclNet_t ncclNetIb = {
   "IB",
