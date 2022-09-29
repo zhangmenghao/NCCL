@@ -2,7 +2,7 @@
 #define TRACEPOINT_PROVIDER nccl
 
 #undef TRACEPOINT_INCLUDE
-#define TRACEPOINT_INCLUDE "/root/nccl/src/include/nccl_tp.h"
+#define TRACEPOINT_INCLUDE "nccl/src/include/nccl_tp.h"
 
 #if !defined(_NCCL_TP_H) || defined(TRACEPOINT_HEADER_MULTI_READ)
 #define _NCCL_TP_H
