@@ -746,7 +746,8 @@ ncclResult_t ncclIbIsend(void* sendComm, void* data, int size, void* mhandle, vo
     NCCLCHECK(wrap_ibv_post_send(comm->qps[q], wr, &bad_wr));
 
     tracepoint(nccl, ncclIbv_post_send, comm->qps[q]->qp_num, chunkSize, transRemoaddr(comm->addr.sin.sin_addr.s_addr));
-    
+    INFO(NCCL_INIT, "nccl, ncclIbv_post_send, %u, %i, %s", comm->qps[q]->qp_num, chunkSize, transRemoaddr(comm->addr.sin.sin_addr.s_addr));
+
     offset += chunkSize;
     sge.addr += chunkSize;
     wr[0].wr.rdma.remote_addr += chunkSize;
@@ -835,6 +836,7 @@ ncclResult_t ncclIbIrecv(void* recvComm, void* data, int size, void* mhandle, vo
     NCCLCHECK(wrap_ibv_post_recv(qp, &wr, &bad_wr));
 
     tracepoint(nccl, ncclIbv_post_recv, comm->qps[q]->qp_num, transRemoaddr(comm->addr.sin.sin_addr.s_addr));
+    INFO(NCCL_INIT, "nccl, ncclIbv_post_recv, %u, %s", comm->qps[q]->qp_num, transRemoaddr(comm->addr.sin.sin_addr.s_addr));
 
   }
   req->events = comm->nqps;
@@ -915,7 +917,7 @@ ncclResult_t ncclIbTest(void* request, int* done, int* size) {
       }
 
       tracepoint(nccl, ncclIbv_poll_cq, wc->qp_num, transRemoaddr(r->addr->sin.sin_addr.s_addr));
-
+      INFO(NCCL_INIT, "nccl, ncclIbv_poll_cq, %u, %s", wc->qp_num, transRemoaddr(r->addr->sin.sin_addr.s_addr));
     }
   }
 }
@@ -928,7 +930,7 @@ ncclResult_t ncclIbCloseSend(void* sendComm) {
       if (comm->qps[q] != NULL) NCCLCHECK(wrap_ibv_destroy_qp(comm->qps[q]));
 
       tracepoint(nccl, ncclIbv_destroy_send_qp, comm->qps[q]->qp_num);
-    
+      INFO(NCCL_INIT, "nccl, ncclIbv_destroy_send_qp, %u",comm->qps[q]->qp_num);
     }
     if (comm->fifoMr != NULL) NCCLCHECK(wrap_ibv_dereg_mr(comm->fifoMr));
     NCCLCHECK(ncclIbDestroyVerbs(&comm->verbs));
@@ -945,7 +947,7 @@ ncclResult_t ncclIbCloseRecv(void* recvComm) {
       if (comm->qps[q] != NULL) NCCLCHECK(wrap_ibv_destroy_qp(comm->qps[q]));
 
       tracepoint(nccl, ncclIbv_destroy_recv_qp, comm->qps[q]->qp_num);
-
+      INFO(NCCL_INIT, "nccl, ncclIbv_destroy_recv_qp, %u",comm->qps[q]->qp_num);
     }
     if (comm->gpuFlush.enabled) {
       if (comm->gpuFlush.qp != NULL) NCCLCHECK(wrap_ibv_destroy_qp(comm->gpuFlush.qp));
