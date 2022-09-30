@@ -116,7 +116,7 @@ static int ncclIbSpeed(int speed) {
   return ibvSpeeds[firstBitSet(speed, sizeof(ibvSpeeds)/sizeof(int)-1)];
 }
 
-char* transRemoaddr(int remoaddr){
+char* transRemoaddr(uint32_t remoaddr){
   char result[15];
   sprintf(result, "%i.%i.%i.%i", remoaddr&255, (remoaddr&65280)>>8, (remoaddr&16711680)>>16, (remoaddr&4278190080)>>24);
   return result;
@@ -745,7 +745,7 @@ ncclResult_t ncclIbIsend(void* sendComm, void* data, int size, void* mhandle, vo
     struct ibv_send_wr* bad_wr;
     NCCLCHECK(wrap_ibv_post_send(comm->qps[q], wr, &bad_wr));
 
-    tracepoint(nccl, ncclIbv_post_send, comm->qps[q]->qp_num, chunkSize, comm->addr.sin.sin_addr.s_addr);
+    tracepoint(nccl, ncclIbv_post_send, comm->qps[q]->qp_num, chunkSize, transRemoaddr(comm->addr.sin.sin_addr.s_addr));
 
     offset += chunkSize;
     sge.addr += chunkSize;
@@ -914,7 +914,7 @@ ncclResult_t ncclIbTest(void* request, int* done, int* size) {
         doneReq->events--;
       }
 
-      tracepoint(nccl, ncclIbv_poll_cq, wc->qp_num, r->addr->sin.sin_addr.s_addr);
+      tracepoint(nccl, ncclIbv_poll_cq, wc->qp_num, transRemoaddr(r->addr->sin.sin_addr.s_addr));
       
     }
   }
