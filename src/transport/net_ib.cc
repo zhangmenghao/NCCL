@@ -117,7 +117,7 @@ static int ncclIbSpeed(int speed) {
 }
 
 char* transRemoaddr(uint32_t remoaddr){
-  char result[15];
+  char result[20];
   sprintf(result, "%i.%i.%i.%i", remoaddr&255, (remoaddr&65280)>>8, (remoaddr&16711680)>>16, (remoaddr&4278190080)>>24);
   return result;
 }
