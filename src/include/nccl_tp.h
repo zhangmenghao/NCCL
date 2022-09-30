@@ -7,12 +7,12 @@
 #if !defined(_NCCL_TP_H) || defined(TRACEPOINT_HEADER_MULTI_READ)
 #define _NCCL_TP_H
 
-#include "lttng/tracepoint.h"
+#include "lttng/tracepoint.h"s
 
 TRACEPOINT_EVENT(nccl, ncclIbv_post_send, TP_ARGS(uint32_t, qpnum, int, chunksize, char*, remoaddr),
                  TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum)          //qp number
                             ctf_integer(int, chunksize, chunksize)      //chunksize = 128kB / num of qp
-                            ctf_array_text(char, remoaddr, remoaddr, 20)))    //remote addr data sent to   ctf_array_text(char, field_name, expr, count)
+                            ctf_string(remoaddr, remoaddr)))    //remote addr data sent to   
 
 
 TRACEPOINT_EVENT(nccl, ncclIbv_post_recv, TP_ARGS(uint32_t, qpnum, char*, remoaddr),

@@ -116,7 +116,7 @@ static int ncclIbSpeed(int speed) {
   return ibvSpeeds[firstBitSet(speed, sizeof(ibvSpeeds)/sizeof(int)-1)];
 }
 
-char* transRemoaddr(uint32_t remoaddr){
+char* transRemoaddr(in_addr_t remoaddr){
   char result[20];
   sprintf(result, "%i.%i.%i.%i", remoaddr&255, (remoaddr&65280)>>8, (remoaddr&16711680)>>16, (remoaddr&4278190080)>>24);
   return result;
