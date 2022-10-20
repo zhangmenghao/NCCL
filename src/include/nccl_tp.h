@@ -9,18 +9,18 @@
 
 #include "lttng/tracepoint.h"
 
-TRACEPOINT_EVENT(nccl, ncclIbv_post_send, TP_ARGS(uint32_t, qpnum, int, chunksize, char*, remoaddr),
+TRACEPOINT_EVENT(nccl, ncclIbv_post_send, TP_ARGS(uint32_t, qpnum, int, chunksize, uint32_t, remoaddr),
                  TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum)          //qp number
                             ctf_integer(int, chunksize, chunksize)      //chunksize = 128kB / num of qp
                             ctf_integer(uint32_t, remoaddr, remoaddr)))    //remote addr data sent to   
                        
 
-TRACEPOINT_EVENT(nccl, ncclIbv_post_recv, TP_ARGS(uint32_t, qpnum, char*, remoaddr),
+TRACEPOINT_EVENT(nccl, ncclIbv_post_recv, TP_ARGS(uint32_t, qpnum, uint32_t, remoaddr),
                  TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum)         //qp number
                             ctf_integer(uint32_t, remoaddr, remoaddr)))   //remote addr data sent from
 
 
-TRACEPOINT_EVENT(nccl, ncclIbv_poll_cq, TP_ARGS(uint32_t, qpnum, char*, remoaddr),
+TRACEPOINT_EVENT(nccl, ncclIbv_poll_cq, TP_ARGS(uint32_t, qpnum, uint32_t, remoaddr),
                  TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum) 
                             ctf_integer(uint32_t, remoaddr, remoaddr)))   
 

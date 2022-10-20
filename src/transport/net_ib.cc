@@ -116,11 +116,11 @@ static int ncclIbSpeed(int speed) {
   return ibvSpeeds[firstBitSet(speed, sizeof(ibvSpeeds)/sizeof(int)-1)];
 }
 
-char* transRemoaddr(in_addr_t remoaddr, char* result){
+/*char* transRemoaddr(in_addr_t remoaddr, char* result){
   //char result[20];
   sprintf(result, "%i.%i.%i.%i", remoaddr&255, (remoaddr&65280)>>8, (remoaddr&16711680)>>16, (remoaddr&4278190080)>>24);
   return result;
-}
+}*/
 
 ncclResult_t ncclIbInit(ncclDebugLogger_t logFunction) {
   static int shownIbHcaEnv = 0;
@@ -745,8 +745,7 @@ ncclResult_t ncclIbIsend(void* sendComm, void* data, int size, void* mhandle, vo
     struct ibv_send_wr* bad_wr;
     NCCLCHECK(wrap_ibv_post_send(comm->qps[q], wr, &bad_wr));
 
-    char result[20];
-    tracepoint(nccl, ncclIbv_post_send, comm->qps[q]->qp_num, chunkSize, transRemoaddr(comm->addr.sin.sin_addr.s_addr, result));
+    tracepoint(nccl, ncclIbv_post_send, comm->qps[q]->qp_num, chunkSize, comm->addr.sin.sin_addr.s_addr);
 
     offset += chunkSize;
     sge.addr += chunkSize;
@@ -835,8 +834,7 @@ ncclResult_t ncclIbIrecv(void* recvComm, void* data, int size, void* mhandle, vo
     struct ibv_recv_wr* bad_wr;
     NCCLCHECK(wrap_ibv_post_recv(qp, &wr, &bad_wr));
 
-    char result[20];
-    tracepoint(nccl, ncclIbv_post_recv, comm->qps[q]->qp_num, transRemoaddr(comm->addr.sin.sin_addr.s_addr, result));
+    tracepoint(nccl, ncclIbv_post_recv, comm->qps[q]->qp_num, comm->addr.sin.sin_addr.s_addr);
 
   }
   req->events = comm->nqps;
@@ -916,8 +914,7 @@ ncclResult_t ncclIbTest(void* request, int* done, int* size) {
         doneReq->events--;
       }
 
-      char result[20];
-      tracepoint(nccl, ncclIbv_poll_cq, wc->qp_num, transRemoaddr(r->addr->sin.sin_addr.s_addr, result));
+      tracepoint(nccl, ncclIbv_poll_cq, wc->qp_num, r->addr->sin.sin_addr.s_addr);
       
     }
   }
