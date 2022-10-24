@@ -22,11 +22,16 @@ TRACEPOINT_EVENT(nccl, ncclIbv_poll_cq, TP_ARGS(uint32_t, qpnum, uint32_t, remoa
                  TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum) 
                             ctf_integer(uint32_t, remoaddr, remoaddr)))   
 
-TRACEPOINT_EVENT(nccl, ncclIbv_destroy_send_qp, TP_ARGS(uint32_t, qpnum),  
-                 TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum)))   
+TRACEPOINT_EVENT(nccl, ncclGpuIntraSendBegin, TP_ARGS(int, myRank, int, desRank),
+                 TP_FIELDS(ctf_integer(int, myRank, myRank)
+                            ctf_integer(int, desRank, desRank)))
 
-TRACEPOINT_EVENT(nccl, ncclIbv_destroy_recv_qp, TP_ARGS(uint32_t, qpnum),
-                 TP_FIELDS(ctf_integer(uint32_t, qpnum, qpnum)))
+TRACEPOINT_EVENT(nccl, ncclGpuIntraRecvBegin, TP_ARGS(int, myRank, int, srcRank),
+                 TP_FIELDS(ctf_integer(int, myRank, myRank)
+                            ctf_integer(int, srcRank, srcRank)))
+
+TRACEPOINT_EVENT(nccl, ncclGpuIntraCommEnd, TP_ARGS(int, myRank),
+                 TP_FIELDS(ctf_integer(int, myRank, myRank)))
 
 #endif /* _NCCL_TP_H */
 
