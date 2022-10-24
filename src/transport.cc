@@ -8,6 +8,8 @@
 #include "info.h"
 #include "bootstrap.h"
 
+#include "nccl_tp.h"
+
 extern struct ncclTransport p2pTransport;
 extern struct ncclTransport shmTransport;
 extern struct ncclTransport netTransport;
