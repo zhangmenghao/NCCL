@@ -115,6 +115,7 @@ ncclResult_t ncclTransportP2pSetup(struct ncclComm* comm, struct ncclTopoGraph* 
         struct ncclConnector* conn = comm->channels[c].peers[sendPeer].send + connIndex;
         NCCLCHECK(conn->transportComm->connect(comm, sendData++, 1, comm->rank, conn));
         conn->connected = 1;
+        tracepoint(nccl, ncclGpuIntraSendBegin, comm->rank, sendPeer);
         CUDACHECK(cudaMemcpyAsync(comm->channels[c].devPeers[sendPeer].send+connIndex, conn, sizeof(struct ncclConnector), cudaMemcpyHostToDevice, transportSetupStream));
       }
     }
@@ -123,12 +124,14 @@ ncclResult_t ncclTransportP2pSetup(struct ncclComm* comm, struct ncclTopoGraph* 
         struct ncclConnector* conn = comm->channels[c].peers[recvPeer].recv + connIndex;
         NCCLCHECK(conn->transportComm->connect(comm, recvData++, 1, comm->rank, conn));
         conn->connected = 1;
+        tracepoint(nccl, ncclGpuIntraRecvBegin, comm->rank, recvPeer);
         CUDACHECK(cudaMemcpyAsync(comm->channels[c].devPeers[recvPeer].recv+connIndex, conn, sizeof(struct ncclConnector), cudaMemcpyHostToDevice, transportSetupStream));
       }
     }
     comm->connectRecv[recvPeer] = comm->connectSend[sendPeer] = 0;
   }
   CUDACHECK(cudaStreamSynchronize(transportSetupStream));
+  tracepoint(nccl, ncclGpuIntraCommEnd, comm->rank);
   CUDACHECK(cudaStreamDestroy(transportSetupStream));
   if (highestTransportType != NULL) *highestTransportType = highestType;
   return ncclSuccess;
