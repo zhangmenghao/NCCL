@@ -23,6 +23,8 @@
 
 #include "ibvwrap.h"
 
+#include "nccl_tp.h"
+
 #define USE_RDMA_WRITE 1
 #define MAXNAMESIZE 64
 static char ncclIbIfName[MAX_IF_NAME_SIZE+1];
@@ -736,6 +738,7 @@ ncclResult_t ncclIbIsend(void* sendComm, void* data, int size, void* mhandle, vo
     }
     struct ibv_send_wr* bad_wr;
     NCCLCHECK(wrap_ibv_post_send(comm->qps[q], wr, &bad_wr));
+    tracepoint(nccl, ncclIbv_post_send, comm->qps[q]->qp_num, chunkSize, comm->addr.sin.sin_addr.s_addr);
     offset += chunkSize;
     sge.addr += chunkSize;
     wr[0].wr.rdma.remote_addr += chunkSize;
@@ -822,6 +825,7 @@ ncclResult_t ncclIbIrecv(void* recvComm, void* data, int size, void* mhandle, vo
     struct ibv_qp* qp = comm->qps[q];
     struct ibv_recv_wr* bad_wr;
     NCCLCHECK(wrap_ibv_post_recv(qp, &wr, &bad_wr));
+    tracepoint(nccl, ncclIbv_post_recv, comm->qps[q]->qp_num, comm->addr.sin.sin_addr.s_addr);
   }
   req->events = comm->nqps;
 
@@ -899,6 +903,7 @@ ncclResult_t ncclIbTest(void* request, int* done, int* size) {
         }
         doneReq->events--;
       }
+      tracepoint(nccl, ncclIbv_poll_cq, wc->qp_num, r->addr->sin.sin_addr.s_addr);     
     }
   }
 }
@@ -907,8 +912,10 @@ ncclResult_t ncclIbCloseSend(void* sendComm) {
   struct ncclIbSendComm* comm = (struct ncclIbSendComm*)sendComm;
   if (comm) {
     close(comm->fd);
-    for (int q=0; q<comm->nqps; q++)
+    for (int q=0; q<comm->nqps; q++){
       if (comm->qps[q] != NULL) NCCLCHECK(wrap_ibv_destroy_qp(comm->qps[q]));
+      tracepoint(nccl, ncclIbv_destroy_send_qp, comm->qps[q]->qp_num);     
+    }
     if (comm->fifoMr != NULL) NCCLCHECK(wrap_ibv_dereg_mr(comm->fifoMr));
     NCCLCHECK(ncclIbDestroyVerbs(&comm->verbs));
     free(comm);
@@ -920,8 +927,10 @@ ncclResult_t ncclIbCloseRecv(void* recvComm) {
   struct ncclIbRecvComm* comm = (struct ncclIbRecvComm*)recvComm;
   if (comm) {
     close(comm->fd);
-    for (int q=0; q<comm->nqps; q++)
+    for (int q=0; q<comm->nqps; q++){
       if (comm->qps[q] != NULL) NCCLCHECK(wrap_ibv_destroy_qp(comm->qps[q]));
+      tracepoint(nccl, ncclIbv_destroy_recv_qp, comm->qps[q]->qp_num);      
+    }
     if (comm->gpuFlush.enabled) {
       if (comm->gpuFlush.qp != NULL) NCCLCHECK(wrap_ibv_destroy_qp(comm->gpuFlush.qp));
       if (comm->gpuFlush.hostMr != NULL) NCCLCHECK(wrap_ibv_dereg_mr(comm->gpuFlush.hostMr));
