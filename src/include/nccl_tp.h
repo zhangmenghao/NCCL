@@ -19,7 +19,7 @@ TRACEPOINT_EVENT(nccl, ncclIbv_post_recv, TP_ARGS(uint32_t, qpNum, uint32_t, rem
                             ctf_integer(uint32_t, srcAddr, remoAddr)))    //remote addr data sent from
 
 TRACEPOINT_EVENT(nccl, ncclIbv_poll_cq, TP_ARGS(uint32_t, qpNum, uint32_t, remoAddr),
-                 TP_FIELDS(ctf_integer(uint32_t, qpNum, qpNum)            //poll_cq diff send or recv by qpNum and remoAddr          
+                 TP_FIELDS(ctf_integer(uint32_t, qpNum, qpNum)            //poll_cq differentiate between send & recv by qpNum and remoAddr          
                             ctf_integer(uint32_t, remoAddr, remoAddr)))   
 
 TRACEPOINT_EVENT(nccl, ncclGpuSendBegin, TP_ARGS(int, myRank, int, dstRank),
