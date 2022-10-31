@@ -1,6 +1,0 @@
-{
-    "files.associations": {
-        "nccl_tp.h": "c",
-        "type_traits": "cpp"
-    }
-}
