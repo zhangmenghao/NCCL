@@ -2,7 +2,7 @@
 #define TRACEPOINT_PROVIDER nccl
 
 #undef TRACEPOINT_INCLUDE
-#define TRACEPOINT_INCLUDE "/root/NCCL/nccl/src/include/nccl_tp.h"
+#define TRACEPOINT_INCLUDE "NCCL_TRACEPOINT_INCLUDE_PATH" // TODO(tianwenjie): Do not use placeholder
 
 #if !defined(_NCCL_TP_H) || defined(TRACEPOINT_HEADER_MULTI_READ)
 #define _NCCL_TP_H
