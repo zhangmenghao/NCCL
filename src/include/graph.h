@@ -54,6 +54,7 @@ ncclResult_t ncclTopoCpuType(struct ncclTopoSystem* system, int* arch, int* vend
 ncclResult_t ncclTopoGetNetCount(struct ncclTopoSystem* system, int* count);
 ncclResult_t ncclTopoGetNvsCount(struct ncclTopoSystem* system, int* count);
 ncclResult_t ncclTopoGetLocalNet(struct ncclTopoSystem* system, int rank, int* id);
+ncclResult_t ncclTopoGetLocalNetWithChannel(struct ncclTopoSystem* system, int rank, int channelId, int* id);
 
 #define NCCL_TOPO_MAX_NODES 256
 

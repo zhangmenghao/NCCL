@@ -680,6 +680,7 @@ ncclResult_t ncclTopoGetSystem(struct ncclComm* comm, struct ncclTopoSystem** sy
 }
 
 ncclResult_t ncclTopoGetLocalNet(struct ncclTopoSystem* system, int rank, int* id) {
+  INFO(NCCL_NET, "--- ncclTopoGetLocalNet comein");
   int g;
   NCCLCHECK(ncclTopoRankToIndex(system, rank, &g));
   int minType = PATH_SYS;
@@ -696,6 +697,7 @@ ncclResult_t ncclTopoGetLocalNet(struct ncclTopoSystem* system, int rank, int* i
     }
     if (path->bw == maxBw && path->type == minType) nets[count++] = system->nodes[NET].nodes[n].id;
   }
+  INFO(NCCL_NET, "--- ncclTopoGetLocalNet, netDev.count %d", count);
   if (count == 0) {
     *id = -1;
     free(nets);
@@ -704,6 +706,45 @@ ncclResult_t ncclTopoGetLocalNet(struct ncclTopoSystem* system, int rank, int* i
 
   int rr = system->nodes[GPU].nodes[g].gpu.dev;
   *id = nets[rr%count];
+  INFO(NCCL_NET, "--- ncclTopoGetLocalNet, rr %d, netDev %d", rr, *id);
+  for (int i=0; i<system->nodes[NET].count; i++) {
+    INFO(NCCL_NET, "--- ncclTopoGetLocalNet, net[%d] %d", i, nets[i]);
+  }
+  free(nets);
+  return ncclSuccess;
+}
+
+ncclResult_t ncclTopoGetLocalNetWithChannel(struct ncclTopoSystem* system, int rank, int channelId, int* id) {
+  INFO(NCCL_NET, "--- ncclTopoGetLocalNetWithChannel comein");
+  int g;
+  NCCLCHECK(ncclTopoRankToIndex(system, rank, &g));
+  int minType = PATH_SYS;
+  float maxBw = 0;
+  int count = 0;
+  int* nets;
+  NCCLCHECK(ncclCalloc(&nets, system->nodes[NET].count));
+  for (int n=0; n<system->nodes[NET].count; n++) {
+    struct ncclTopoLinkList* path = system->nodes[NET].nodes[n].paths[GPU]+g;
+    if (path->bw > maxBw || (path->bw == maxBw && path->type < minType)) {
+      maxBw = path->bw;
+      minType = path->type;
+      count = 0;
+    }
+    if (path->bw == maxBw && path->type == minType) nets[count++] = system->nodes[NET].nodes[n].id;
+  }
+  INFO(NCCL_NET, "--- ncclTopoGetLocalNetWithChannel, netDev.count %d", count);
+  if (count == 0) {
+    *id = -1;
+    free(nets);
+    return ncclSuccess;
+  }
+
+  int rr = system->nodes[GPU].nodes[g].gpu.dev;
+  *id = nets[(rr+channelId)%count];
+  INFO(NCCL_NET, "--- ncclTopoGetLocalNetWithChannel, rr %d, netDev %d", rr, *id);
+  for (int i=0; i<system->nodes[NET].count; i++) {
+    INFO(NCCL_NET, "--- ncclTopoGetLocalNetWithChannel, net[%d] %d", i, nets[i]);
+  }
   free(nets);
   return ncclSuccess;
 }

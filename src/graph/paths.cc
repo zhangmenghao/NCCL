@@ -485,7 +485,9 @@ ncclResult_t ncclTopoGetPxnRanks(struct ncclComm* comm, int** intermediateRanks,
   int* ranks = NULL;
   for (int rank=0; rank<comm->nRanks; rank++) {
     int netDev, proxyRank;
+    INFO(NCCL_NET, "--- ncclTopoGetPxnRanks comein");
     NCCLCHECK(ncclTopoGetNetDev(comm, comm->rank, NULL, 0, rank, &netDev, &proxyRank));
+    INFO(NCCL_NET, "--- ncclTopoGetPxnRanks, myrank %d, peerRank %d, channelId %d, netDev %d, proxyRank %d\n", comm->rank, rank, 0, netDev, proxyRank);
     if (proxyRank == comm->rank) continue;
     int useGdr;
     NCCLCHECK(ncclTopoCheckGdr(comm->topo, comm->busId, netDev, 1, &useGdr));

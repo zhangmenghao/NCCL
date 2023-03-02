@@ -944,6 +944,7 @@ NCCL_PARAM(P2pPxnLevel, "P2P_PXN_LEVEL", 2);
 
 #include "comm.h"
 ncclResult_t ncclTopoGetNetDev(struct ncclComm* comm, int rank, struct ncclTopoGraph* graph, int channelId, int peerRank, int* dev, int* proxyRank) {
+  INFO(NCCL_NET,"--- ncclTopoGetNetDev comein");
   if (graph) {
     // Honor the net device in the graph
     int channel = channelId%graph->nChannels;
@@ -951,16 +952,20 @@ ncclResult_t ncclTopoGetNetDev(struct ncclComm* comm, int rank, struct ncclTopoG
     int index = graph->intra[channel*ngpus] == rank ? 0 : 1;
     *dev = graph->inter[channel*2+index];
     NCCLCHECK(ncclTopoGetIntermediateRank(comm->topo, rank, *dev, proxyRank));
+    INFO(NCCL_NET,"--- ncclTopoGetNetDev, graph is true, myrank %d, peerrank %d, channelId %d, dev %d, proxyRank %d", rank, peerRank, channelId, *dev, *proxyRank);
   } else if (peerRank == -1) {
     return ncclInternalError;
   } else {
     // Start with our local NIC and local Rank
-    NCCLCHECK(ncclTopoGetLocalNet(comm->topo, rank, dev));
+    NCCLCHECK(ncclTopoGetLocalNetWithChannel(comm->topo, rank, channelId, dev));
+    // NCCLCHECK(ncclTopoGetLocalNet(comm->topo, rank, dev));
     *proxyRank = rank;
+    INFO(NCCL_NET,"--- ncclTopoGetNetDev, graph is false, myrank %d, peerrank %d, channelId %d, dev %d, proxyRank %d", rank, peerRank, channelId, *dev, *proxyRank);
 
     int pxnLevel = ncclPxnDisable(comm) == 1 ? 0 : ncclParamP2pPxnLevel();
     // See whether we can use the remote rank preferred device.
     if (ncclParamCrossNic() == 0 || (pxnLevel != 0)) {
+      INFO(NCCL_NET,"--- ncclTopoGetNetDev, ncclParamCrossNic and pxnLevel");
       // Find local NIC number close to local cudaDev
       int cudaDev = comm->peerInfo[peerRank].cudaDev;
       int localRank;
@@ -1003,6 +1008,8 @@ ncclResult_t ncclTopoGetNetDev(struct ncclComm* comm, int rank, struct ncclTopoG
         }
       }
     }
+    INFO(NCCL_NET,"--- ncclTopoGetNetDev, ncclParamCrossNic and pxnLevel, myrank %d, peerrank %d, channelId %d, dev %d, proxyRank %d", rank, peerRank, channelId, *dev, *proxyRank);
   }
+
   return ncclSuccess;
 }

@@ -18,6 +18,7 @@
 
 // Conform to pthread and NVTX standard
 #define NCCL_THREAD_NAMELEN 16
+#define ENABLE_TRACE
 
 extern int ncclDebugLevel;
 extern uint64_t ncclDebugMask;
